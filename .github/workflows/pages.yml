@@ -1,0 +1,36 @@
+# Copia questo file nel repo GitHub come:  .github/workflows/pages.yml
+# (su GitHub: Add file → Create new file → nome «.github/workflows/pages.yml» → incolla tutto → Commit)
+# Poi: Settings → Pages → Build and deployment → Source: «GitHub Actions».
+#
+# Ogni volta che carichi nel repo un nuovo «viola-github-pages.zip», GitHub lo estrae e pubblica il sito.
+name: Pubblica su GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  pubblica:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Estrai il sito dallo zip
+        run: unzip -q viola-github-pages.zip -d _site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v4
